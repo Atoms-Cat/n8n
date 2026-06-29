@@ -174,7 +174,7 @@ function onRetryMenuItemSelect(action: string): void {
 				<PrivateCredentialIcon
 					v-if="hasPrivateCredentials"
 					:class="$style.icon"
-					:tooltip-text="locale.baseText('workflows.dynamic.tooltip')"
+					:tooltip-text="locale.baseText('executions.privateCredential.tooltip')"
 					data-test-id="execution-card-private-credential"
 				/>
 				<N8nTooltip v-if="execution.mode === 'manual'" placement="top">

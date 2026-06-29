@@ -285,7 +285,7 @@ async function handleActionItemClick(commandData: Command) {
 			<PrivateCredentialIcon
 				v-if="execution.usedPrivateCredentials"
 				data-test-id="global-execution-private-credential"
-				:tooltip-text="locale.baseText('credentials.private.tooltip')"
+				:tooltip-text="locale.baseText('executions.privateCredential.tooltip')"
 			/>
 		</td>
 		<td>
