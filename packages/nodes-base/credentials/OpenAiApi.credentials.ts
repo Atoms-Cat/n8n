@@ -73,6 +73,23 @@ export class OpenAiApi implements ICredentialType {
 			},
 			default: '',
 		},
+		{
+			displayName: 'Add Proxy',
+			name: 'proxySetting',
+			type: 'boolean',
+			default: false,
+		},
+		{
+			displayName: 'Proxy Value',
+			name: 'proxy',
+			type: 'string',
+			displayOptions: {
+				show: {
+					proxySetting: [true],
+				},
+			},
+			default: '',
+		},
 	];
 
 	test: ICredentialTestRequest = {

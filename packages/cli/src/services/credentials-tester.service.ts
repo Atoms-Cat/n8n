@@ -266,7 +266,11 @@ export class CredentialsTester {
 
 		const node: INode = {
 			id: 'temp',
-			parameters: {},
+			parameters: {
+				requestOptions: {
+					proxy: (credentialsDecrypted?.data?.proxy as string) ?? '',
+				},
+			},
 			name: 'Temp-Node',
 			type: nodeType.description.name,
 			typeVersion: Array.isArray(nodeType.description.version)
@@ -303,6 +307,12 @@ export class CredentialsTester {
 						routing: {
 							request: credentialTestFunction.testRequest.request,
 						},
+						default: '',
+					},
+					{
+						displayName: 'requestOptions',
+						name: 'requestOptions',
+						type: 'json',
 						default: '',
 					},
 				],
