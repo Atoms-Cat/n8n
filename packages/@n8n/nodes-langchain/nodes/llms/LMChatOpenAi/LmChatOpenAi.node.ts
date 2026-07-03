@@ -773,10 +773,13 @@ export class LmChatOpenAi implements INodeType {
 
 		const timeout = options.timeout;
 		configuration.fetchOptions = {
-			dispatcher: getProxyAgent(configuration.baseURL ?? 'https://api.openai.com/v1', {
-				headersTimeout: timeout,
-				bodyTimeout: timeout,
-			}),
+			dispatcher: getProxyAgent(
+				(credentials?.proxy as string) ?? configuration.baseURL ?? 'https://api.openai.com/v1',
+				{
+					headersTimeout: timeout,
+					bodyTimeout: timeout,
+				},
+			),
 		};
 		configuration.defaultHeaders = mergeCustomHeaders(
 			credentials,
