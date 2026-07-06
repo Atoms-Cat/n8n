@@ -265,7 +265,10 @@ export class EmbeddingsOpenAi implements INodeType {
 		}
 
 		configuration.fetchOptions = {
-			dispatcher: getProxyAgent(configuration.baseURL ?? 'https://api.openai.com/v1', {}),
+			dispatcher: getProxyAgent(
+				(credentials?.proxy as string) ?? configuration.baseURL ?? 'https://api.openai.com/v1',
+				{},
+			),
 		};
 
 		configuration.defaultHeaders = mergeCustomHeaders(
