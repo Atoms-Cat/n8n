@@ -72,6 +72,8 @@ export function getProxyAgent(targetUrl?: string, timeoutOptions?: AgentTimeoutO
 		new URL(targetUrl as string);
 		if (timeoutOptions) {
 			return new ProxyAgent({ uri: targetUrl as string, ...agentOptions });
+		} else {
+			return new ProxyAgent({ uri: targetUrl as string });
 		}
 	} catch (e) {
 		//

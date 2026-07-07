@@ -23,7 +23,7 @@ export async function searchModels(
 		baseURL,
 		apiKey: credentials.apiKey as string,
 		fetchOptions: {
-			dispatcher: getProxyAgent(baseURL),
+			dispatcher: getProxyAgent((credentials?.proxy as string) ?? baseURL),
 		},
 		defaultHeaders,
 	});
