@@ -1,6 +1,7 @@
 import os
 import msal
 import requests
+import base64
 from .errors import AuthError, GraphAPIError, NetworkError
 
 class OutlookClient:
@@ -81,4 +82,39 @@ class OutlookClient:
         if response.status_code == 200:
             return response.json().get("value", [])
         else:
+            raise GraphAPIError(response.status_code, response.text)
+
+    def send_email(self, to_recipients: list, subject: str, body: str, is_html: bool = False, attachments: list = None):
+        url = "https://graph.microsoft.com/v1.0/me/sendMail"
+        
+        message = {
+            "subject": subject,
+            "body": {
+                "contentType": "HTML" if is_html else "Text",
+                "content": body
+            },
+            "toRecipients": [{"emailAddress": {"address": email}} for email in to_recipients]
+        }
+        
+        if attachments:
+            message["attachments"] = []
+            for filepath in attachments:
+                with open(filepath, "rb") as f:
+                    content_bytes = f.read()
+                encoded_content = base64.b64encode(content_bytes).decode("utf-8")
+                filename = os.path.basename(filepath)
+                message["attachments"].append({
+                    "@odata.type": "#microsoft.graph.fileAttachment",
+                    "name": filename,
+                    "contentBytes": encoded_content
+                })
+                
+        payload = {"message": message, "saveToSentItems": "true"}
+        
+        try:
+            response = requests.post(url, headers=self._get_headers(), json=payload)
+        except requests.RequestException as e:
+            raise NetworkError(str(e))
+            
+        if response.status_code != 202:
             raise GraphAPIError(response.status_code, response.text)
