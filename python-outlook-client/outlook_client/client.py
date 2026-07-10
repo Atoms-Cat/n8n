@@ -1,6 +1,7 @@
 import os
 import msal
-from .errors import AuthError
+import requests
+from .errors import AuthError, GraphAPIError, NetworkError
 
 class OutlookClient:
     def __init__(self, client_id: str, tenant_id: str = "common", client_secret: str = None, http_client=None):
@@ -61,3 +62,23 @@ class OutlookClient:
                 self._save_cache()
                 return
         raise AuthError("No cached token found or silent auth failed")
+
+    def _get_headers(self):
+        if not self.access_token:
+            raise AuthError("Not authenticated. Call a login method first.")
+        return {"Authorization": f"Bearer {self.access_token}", "Content-Type": "application/json"}
+
+    def get_inbox(self, top: int = 10, unread_only: bool = False) -> list:
+        url = f"https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$top={top}"
+        if unread_only:
+            url += "&$filter=isRead eq false"
+        
+        try:
+            response = requests.get(url, headers=self._get_headers())
+        except requests.RequestException as e:
+            raise NetworkError(str(e))
+            
+        if response.status_code == 200:
+            return response.json().get("value", [])
+        else:
+            raise GraphAPIError(response.status_code, response.text)
