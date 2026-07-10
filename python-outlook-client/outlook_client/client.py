@@ -1,5 +1,6 @@
 import os
 import msal
+from .errors import AuthError
 
 class OutlookClient:
     def __init__(self, client_id: str, tenant_id: str = "common", client_secret: str = None, http_client=None):
@@ -31,3 +32,32 @@ class OutlookClient:
         if self.token_cache.has_state_changed:
             with open(self.cache_path, "w") as f:
                 f.write(self.token_cache.serialize())
+
+    def login_with_browser(self):
+        scopes = ["https://graph.microsoft.com/.default"]
+        result = self.app.acquire_token_interactive(scopes=scopes)
+        if "access_token" in result:
+            self.access_token = result["access_token"]
+            self._save_cache()
+        else:
+            raise AuthError(result.get("error_description", "Unknown auth error"))
+
+    def login_with_username_password(self, username, password):
+        scopes = ["https://graph.microsoft.com/.default"]
+        result = self.app.acquire_token_by_username_password(username, password, scopes=scopes)
+        if "access_token" in result:
+            self.access_token = result["access_token"]
+            self._save_cache()
+        else:
+            raise AuthError(result.get("error_description", "Unknown auth error"))
+
+    def login_with_sso(self, username_hint=None):
+        scopes = ["https://graph.microsoft.com/.default"]
+        accounts = self.app.get_accounts(username=username_hint)
+        if accounts:
+            result = self.app.acquire_token_silent(scopes, account=accounts[0])
+            if result and "access_token" in result:
+                self.access_token = result["access_token"]
+                self._save_cache()
+                return
+        raise AuthError("No cached token found or silent auth failed")
